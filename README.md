@@ -12,14 +12,6 @@ It is **not** the full Threshold Vault commercial application. It does not inclu
 - **Format documentation** (`docs/format.md`): Technical specification for the compact recovery code format.
 - **Offline recovery guide** (`docs/offline-recovery.md`): How to use the offline recovery tool safely.
 
-## What this package does not include
-
-- Payment, billing, or subscription logic
-- Order processing or fulfillment
-- Admin or customer service tools
-- Email delivery or notification systems
-- The full Threshold Vault web application
-
 ## Purpose
 
 This package lets users **verify and recover shard codes without thresholdvault.com**. If the Threshold Vault service becomes unavailable, the cryptographic algorithm, offline recovery tool, and format specification in this package are sufficient to recover any secret split with Threshold Vault.
@@ -37,6 +29,7 @@ Do not test your actual recovery procedure for the first time in an emergency. U
 3. Disable your network connection if handling a real high-value secret.
 4. Enter the recovery codes from at least M shard cards (where M is the threshold for your scheme).
 5. Click "Reconstruct secret".
+6. Reveal the recovered secret only when you are in a private, trusted environment.
 
 The tool performs all decoding, decryption, and reconstruction locally in the browser. Nothing is sent over the network.
 
@@ -61,7 +54,7 @@ npm run build     # Compile TypeScript to dist/
 
 ## Repository location
 
-The public repository location is intentionally not specified in this package. The human publishing this package will create the repository separately. Once published, the repository URL will be the authoritative location for updates.
+The public repository location is https://github.com/threshold-vault/shards-core.
 
 ## License
 
