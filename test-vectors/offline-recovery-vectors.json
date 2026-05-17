@@ -1,0 +1,273 @@
+{
+  "_comment": "Threshold Vault offline recovery test vectors. All secrets are dummy values for testing only. Compact codes are deterministic given the fixed ceremonyId.",
+  "_version": "1",
+  "success_cases": [
+    {
+      "id": "2of3-ascii-short",
+      "description": "2-of-3 scheme with a short ASCII secret",
+      "secret": "Hello, World!",
+      "required": 2,
+      "total": 3,
+      "ceremonyId": "7b7e0a0fc910d68d",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "bd45:c33b:2c1d:4845",
+          "compactCode": "A-2of3 | ZYjd-A4Qa-VFkT-MvmD-rn78-CrbK-4Dfa-sqCr-Dxw6-djvM-KXCZ-2eeW-stwm-eL6B-MJgq-q5Ue-gS77-znYy-2RYQ-387U-iV54-WAKN-ELcv-a2Gd-brBD-DCnW-532g-aHfZ-FdFs-wM82-Gdf7-n38m-ShnD-RHco-8QXG-Fpvq-uyd5-S | 198R"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "cc10:c3fd:2bf0:6422",
+          "compactCode": "B-2of3 | ZYmH-gDcr-J4aP-R6r9-2xfD-JWE8-KXTc-TpTd-8rqd-2MVL-J2GQ-A7Tz-gCtC-88zF-Vn3h-s6mp-CKRR-iYZz-1nQR-Z4Pk-i9PV-jwMz-e6VP-4uuw-hkt8-z7Mh-ogd4-d8xW-BPKc-kWav-FtAa-U5pB-u6D2-h3MJ-XDQ8-q7kB-6hhj-W | 11Xe"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "e254:732e:f0f6:4988",
+          "compactCode": "C-2of3 | ZYnx-CNq8-6sQK-UGw4-D9DJ-Q9rw-aqFe-3oiQ-3kk9-3UUD-sXwo-1XCp-46S4-WMec-Jz26-pPt5-pJ9t-ZM9L-jrzw-H6Qj-HzJh-f23q-wB11-b3SH-B3Bh-q63X-rKSJ-GSen-TwSk-a64V-eC9o-onNq-xfC7-6LsH-dNFE-covE-DEe7-S | 1FQw"
+        }
+      ],
+      "recovery_pairs": [
+        [1, 2],
+        [1, 3],
+        [2, 3]
+      ]
+    },
+    {
+      "id": "2of3-bip39-12w",
+      "description": "2-of-3 scheme with a 12-word BIP-39 style seed phrase",
+      "secret": "abandon ability able about above absent absorb abstract absurd abuse access accident account",
+      "required": 2,
+      "total": 3,
+      "ceremonyId": "1dfc593bc1df363c",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "4fee:cb48:6373:1d69",
+          "compactCode": "A-2of3 | 2mfN-NUku-LVNj-ASUi-qmEV-14jt-ZJc8-5Y1h-C1JY-gQ8n-WoUU-MC1V-F4rs-zvkh-8M8w-WsnW-beSq-kaTn-8nK6-4TZD-A7wR-eGLp-gZVs-JnDe-csu5-Hw8N-33pK-Ftit-7p9s-jMSj-5zP7-Pm6c-tbAM-EB3S-AJkA-UKhv-8b2E-G1zQ-uexL-9tX5-W6UF-45Qk-cSW6-qpNT-T1fv-eLv5-xiCN-iSKm-CYrS-1sgZ-gDJe-4Zof-vCah-UvQ6-Q9 | 1EFC"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "dee2:28b6:b4cf:3e75",
+          "compactCode": "B-2of3 | 2mfT-cvh9-LGZT-T87h-4G1r-gqW8-vvLL-rQb8-z3Fw-6Zf6-UEJD-UcHJ-6PU7-zuAU-3REJ-wZQC-iR1S-jQKP-CT98-XMFG-GzRk-BFnM-hwKU-44vN-fn15-ob3y-xzu5-GWrs-N1dq-kaRY-nqry-mE2i-EfMp-YT2V-wmyQ-QqP2-a6u5-dmif-E8Eh-YzYE-bo26-oHW5-i4Wt-WcEQ-V61G-4z3d-265g-wYUR-KjqH-AaCP-5r1v-HjVJ-fo18-qSHa-Hf | 1FJh"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "9f84:38de:8c45:18a5",
+          "compactCode": "C-2of3 | 2mfY-sNdP-L3kB-jokf-GkoE-NcGP-JY4Z-dHAa-n5DK-c5Yh-w5UK-JCEJ-kamN-WBjZ-seR8-AG8L-M2GB-GLaN-rsZs-rEWQ-bjk1-8VqS-tzTM-AEKd-yrpW-9rPV-L7UP-McsQ-hPV6-KWK2-xnor-V3UU-m3T9-UhH9-sDkF-uDkP-u1nD-cQ2k-Qk4T-YEid-JChY-cyht-sfPr-tagT-xgmg-SUd9-nfWP-2av5-eqVg-jgdj-yWfd-mUhz-c4qN-edwM-LD | 1EMT"
+        }
+      ],
+      "recovery_pairs": [
+        [1, 2],
+        [1, 3],
+        [2, 3]
+      ]
+    },
+    {
+      "id": "2of3-bip39-12w-b",
+      "description": "2-of-3 scheme with 'zoo zoo ... wrong' standard BIP-39 test seed",
+      "secret": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+      "required": 2,
+      "total": 3,
+      "ceremonyId": "9d464b04e8842ddd",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "b32d:e76d:bc1c:0f01",
+          "compactCode": "A-2of3 | 8Nh1-wcfT-SCLJ-N15B-Y4dX-YTv3-gVwT-2535-9i3f-bL5W-EAyc-99oM-fj41-U2Wb-L9vM-zubw-Ui1s-rkod-UWRh-eDbs-z4VG-qPzv-HpAo-FQmi-uyxG-9tyt-HFTc-HpCn-zdHB-zQDC-Rn3X-4JJA-BJTd-TKcP-snUt-FR6h-banX | 1JjV"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "1421:7e2e:b91a:f97a",
+          "compactCode": "B-2of3 | 8NhP-owyB-z6dW-A2uR-Pwxa-WaBB-ftYo-KHZ9-tWF7-Qcep-E5ie-Bf2H-7KjM-u5YB-aFJK-sTnv-oTn4-73WH-gKCL-4jmZ-MdjT-hWMh-gpA6-vYrP-uDBj-NfFp-M7MT-uXCV-Xgkq-uLwM-JNnF-bBYX-j5jN-LsiN-56RH-K1mB-RYH9 | 12Zv"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "5e76:c284:9a3a:366d",
+          "compactCode": "C-2of3 | 8Nhm-gHGv-Xzvh-x4jf-FqHd-UgSK-fHA9-cW5E-dJSZ-gwrp-4pqL-hFZW-NBJ7-1eTu-Xdq9-t5wX-Ag19-tJ8s-ZSYw-mVhq-zcjX-ZNwp-ebf8-3iYk-9NkS-4cVM-BVLF-2vik-GiEM-8LSC-DrMF-xw8q-5wRh-jEuP-u5ta-9pTy-kazX | 1DST"
+        }
+      ],
+      "recovery_pairs": [
+        [1, 2],
+        [1, 3],
+        [2, 3]
+      ]
+    },
+    {
+      "id": "2of3-passphrase",
+      "description": "2-of-3 scheme with a passphrase",
+      "secret": "Correct horse battery staple correct horse battery staple",
+      "required": 2,
+      "total": 3,
+      "ceremonyId": "3dc90a27d636dbd0",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "d4f8:e340:3908:8914",
+          "compactCode": "A-2of3 | TJMu-taaB-2C6U-FQFT-Q1Us-TPjB-uRu2-CX6y-Aud4-uba3-VjxL-Z26b-jaHb-eouE-nsbr-EpZH-3Ccg-t9NG-q1fA-gjBm-bFfz-U3m4-UEGD-8Ugu-Cuy5-GWUa-LYma-KLdZ-c1pt-EtSm-1HAq-J7eV-AGda-BEVU-F4pK-pis8-gpyc-ud97-uHTv-LDDg-CmYn-pUoP-LPuQ-ecR | 1JmB"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "bfae:f4ba:850f:ac3b",
+          "compactCode": "B-2of3 | TJPF-t6rm-YVJw-ESPW-3vsK-vFVc-Zzow-ANzS-cFny-Fnow-Ztrz-3mTH-xk7f-3PHj-EV1k-Z3M5-Zdbd-1AoJ-t4H7-vyMB-ZYVH-KMLp-npJ3-Ac3b-x1cU-68fk-Edhg-nuPb-zLVM-unTN-9YV4-jVMz-PDWS-dmF9-52kF-q3bb-KBMg-xSEK-o13E-dm52-czDq-Mqa4-92Z8-csT | 1CdZ"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "7ee4:68bd:4740:f7ce",
+          "compactCode": "C-2of3 | TJQb-sd9N-4nXQ-DUXY-hrFn-P7G3-EZir-8Esv-3bxu-Gu1p-cTmk-rB44-A2gb-owRJ-zZrs-kw2r-fKT2-MkMC-Ap36-TV27-Urt7-VwPf-VAFU-fA8X-pKhe-CdmC-k6be-YWzP-vSXY-AmhK-36Gp-8u6D-THyJ-1dDK-shVv-4SZo-XJCA-2HYy-ANiT-39Ph-TM9p-okci-1C7G-ijs | 1AAS"
+        }
+      ],
+      "recovery_pairs": [
+        [1, 2],
+        [1, 3],
+        [2, 3]
+      ]
+    },
+    {
+      "id": "2of3-digits",
+      "description": "2-of-3 scheme with a numeric secret",
+      "secret": "1234567890",
+      "required": 2,
+      "total": 3,
+      "ceremonyId": "696f9d963eeeba73",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "708c:fdeb:2f9d:005d",
+          "compactCode": "A-2of3 | NxJo-Hn3X-iKNh-9szQ-jKqa-fdUY-mRfs-ykXz-edHM-Z8tt-XwjA-tXss-WYBP-Yzqd-NYfh-uW5W-rPVN-VhEd-Ywej-ZzLG-jaKE-Q4sy-xWUd-oJ3L-8sBG-3Wzm-yJxt-QmBu-DgDh-9tRZ-xvaF-Vtkg-eucU-nCUZ-Ddh9-rQaq-q | 16K5"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "e27b:ea7d:114b:a88f",
+          "compactCode": "B-2of3 | NxKv-Ppin-KbUP-K9e2-geTq-Ax7f-x4Dk-9W6j-CiJ8-X9ea-C59P-mwJ9-7yGM-sMLn-NjQ3-8MQr-k2Uc-3WH9-v5cy-m7V3-zvUJ-sBBr-kAx4-VWUu-ZnKb-dCLA-Ze1v-hBkE-39gd-4bPH-CrA4-1FAx-SzwK-7Rr6-6ezx-CL5g-o | 1A72"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "c03c:52d4:f90f:7ee8",
+          "compactCode": "C-2of3 | NxM3-VsQ2-vsa5-URHe-dy65-gGko-8gmc-KFfT-koJt-6dqq-dU52-y6Jh-pMmn-uWHV-U2LX-TQi6-W8GU-jv48-ZnHY-dycy-aUWo-PJTj-pYHt-uPqF-RNt5-uxSk-RSZ2-s5oq-uHtE-JXJZ-zMqj-Mz5E-3ToT-Rhwk-RmjT-Cy7s-1 | 1CSX"
+        }
+      ],
+      "recovery_pairs": [
+        [1, 2],
+        [1, 3],
+        [2, 3]
+      ]
+    },
+    {
+      "id": "3of5-bip39-16w",
+      "description": "3-of-5 scheme with a 16-word BIP-39 style seed phrase",
+      "secret": "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve",
+      "required": 3,
+      "total": 5,
+      "ceremonyId": "213b94c91d51572f",
+      "shards": [
+        {
+          "index": 1,
+          "holderLabel": "Holder 1",
+          "fingerprint": "fb19:f6ad:fa4e:1272",
+          "compactCode": "A-3of5 | t86u-uwg5-x6Hb-XBXp-Qymd-zJTr-yUuz-mqtf-9JoX-BNpU-XqRz-tqzw-bZVi-sRhL-Wuhp-Lo4C-5qHz-91Xi-3P8G-3BKc-tq3N-Quyd-er4R-UNxw-vJj1-CdZh-ip9c-Cbb8-35nB-q8XY-mLD7-YYqH-oaVN-Xsqa-EyKi-3TAy-whbq-2XS7-eATk-SWeN-Gvkx-xSrt-v31r-BtpQ-LmEN-W2g8-kL1M-RVAy-HuAh-cR7T-AQau-pAXA-k5WA-43eZ-dybu-oFbi | 1186"
+        },
+        {
+          "index": 2,
+          "holderLabel": "Holder 2",
+          "fingerprint": "baeb:88bc:7fa6:687a",
+          "compactCode": "B-3of5 | t89X-X5Zb-37h8-XQST-a7ih-815y-LudY-kBQW-n38e-hUe6-n7Tg-UMmg-eWgo-nU1D-7cW9-ixE1-qXPH-5JtT-LYWZ-oN5S-nnvr-m8Vs-o3Qw-X8XW-hmkM-PHcB-fLtU-ncLz-Xo48-Ttwh-tkbj-rZFj-o1wQ-ttJ9-RZKK-WZFt-WJaM-sq3z-MnfQ-Uozh-yL2V-isYp-nFiy-1bN5-iRmR-qnf1-NrRe-xiMq-yeEK-C6TN-sEKX-eDsC-u9ue-ELNP-Lx1u-dKXJ | 1J7P"
+        },
+        {
+          "index": 3,
+          "holderLabel": "Holder 3",
+          "fingerprint": "6359:4066:ec6b:a679",
+          "compactCode": "C-3of5 | t8C9-8DT6-896f-XdM6-jFfk-Fhi5-iLM6-iWvN-QmTr-SpvX-UXxM-9PmR-ckgW-JhZL-ygv8-1t8X-FStX-5Vvr-jGFd-qUjJ-F5mL-ffoU-Pxmi-CNxm-cMVi-2Ujy-zjvv-zaL5-1F7N-pwnU-s3Pj-KoeG-TcKC-jufp-kSe9-okpi-Lau9-bLno-Aijb-x6Py-khSA-SnnX-483m-4dE5-SYT2-3JqG-gTN5-Dv9G-KgKt-7mBs-W6ny-sPPQ-ryK9-PPWb-rZ8S-THN4 | 1613"
+        },
+        {
+          "index": 4,
+          "holderLabel": "Holder 4",
+          "fingerprint": "1b37:d26c:f480:ba51",
+          "compactCode": "D-3of5 | t8Ek-jMLb-DAWC-XrFj-tPco-PQLC-5m4e-grSE-3Vo7-nuqs-KF1p-sBsk-aers-2aPS-SV24-Ynq2-X6Hw-Linq-qtP3-mM1r-CnWf-qeow-oNGz-aBrL-ML4B-uqfd-5GMv-tiWj-zNnK-kZqY-gVS5-9PRA-oc89-YUS4-1Ydc-Ryrx-Z88t-1sHA-FcRu-jKBL-FZdh-u5Eq-UmR7-pVzF-6sCJ-ZXPt-1ocF-zLD9-fdu9-2H2K-CdoZ-ZgGX-phoj-EW1P-Wexq-qzyr | 1Eux"
+        },
+        {
+          "index": 5,
+          "holderLabel": "Holder 5",
+          "fingerprint": "bd86:b1ae:219f:3383",
+          "compactCode": "E-3of5 | t8HN-LVE6-JBuj-Y5AP-3XZr-X6xJ-TBnC-fBx5-gE8M-AQYs-uoWD-kE6v-qiJx-7JBr-4rFh-h4Ev-KdUs-M1nW-66S6-VfWy-hzf7-K7hb-gM6i-VgLr-urK5-YE6n-TZzE-xmWe-XxBL-U9EC-XMrM-Lbcg-e93v-41HL-rCm2-qoNk-t7DW-PJSJ-pxbz-JgAN-4Amm-BSMo-zvVd-Zqwr-Rwjz-ECSG-xXpN-t29Q-1hit-sXJG-9BKN-vWzx-4VFF-vRzv-VQai-QBet | 1Ko6"
+        }
+      ],
+      "recovery_triples": [
+        [1, 2, 3],
+        [1, 2, 4],
+        [1, 2, 5],
+        [1, 3, 4],
+        [2, 3, 5]
+      ]
+    }
+  ],
+  "failure_cases": [
+    {
+      "id": "insufficient-shards",
+      "description": "A 2-of-3 scheme where only 1 shard is provided. Recovery must fail.",
+      "expected": "error",
+      "expected_error_contains": "required",
+      "scheme": "2-of-3",
+      "shards_provided": 1,
+      "shards_required": 2,
+      "note": "Using shards from the 2of3-ascii-short test case. Providing only shard index 1. The library should raise an error stating that at least 2 valid shards are required.",
+      "input": [
+        "A-2of3 | ZYjd-A4Qa-VFkT-MvmD-rn78-CrbK-4Dfa-sqCr-Dxw6-djvM-KXCZ-2eeW-stwm-eL6B-MJgq-q5Ue-gS77-znYy-2RYQ-387U-iV54-WAKN-ELcv-a2Gd-brBD-DCnW-532g-aHfZ-FdFs-wM82-Gdf7-n38m-ShnD-RHco-8QXG-Fpvq-uyd5-S | 198R"
+      ]
+    },
+    {
+      "id": "wrong-group",
+      "description": "Two shards from different ceremonies mixed together. Recovery must fail.",
+      "expected": "error",
+      "expected_error_contains": "different",
+      "note": "Shard A from '2of3-ascii-short' (ceremonyId 7b7e0a0fc910d68d) mixed with shard B from '2of3-digits' (ceremonyId 696f9d963eeeba73). The library detects ceremonyId mismatch and raises an error.",
+      "input": [
+        "A-2of3 | ZYjd-A4Qa-VFkT-MvmD-rn78-CrbK-4Dfa-sqCr-Dxw6-djvM-KXCZ-2eeW-stwm-eL6B-MJgq-q5Ue-gS77-znYy-2RYQ-387U-iV54-WAKN-ELcv-a2Gd-brBD-DCnW-532g-aHfZ-FdFs-wM82-Gdf7-n38m-ShnD-RHco-8QXG-Fpvq-uyd5-S | 198R",
+        "B-2of3 | NxKv-Ppin-KbUP-K9e2-geTq-Ax7f-x4Dk-9W6j-CiJ8-X9ea-C59P-mwJ9-7yGM-sMLn-NjQ3-8MQr-k2Uc-3WH9-v5cy-m7V3-zvUJ-sBBr-kAx4-VWUu-ZnKb-dCLA-Ze1v-hBkE-39gd-4bPH-CrA4-1FAx-SzwK-7Rr6-6ezx-CL5g-o | 1A72"
+      ]
+    },
+    {
+      "id": "malformed-code",
+      "description": "A deliberately malformed compact recovery code with a bad check code.",
+      "expected": "error",
+      "expected_error_contains": "Check code",
+      "note": "The last 4 characters of the check code have been replaced with '1111', which does not match the computed SHA-256-derived check. The library should detect and reject this before attempting recovery.",
+      "input": [
+        "A-2of3 | ZYjd-A4Qa-VFkT-MvmD-rn78-CrbK-4Dfa-sqCr-Dxw6-djvM-KXCZ-2eeW-stwm-eL6B-MJgq-q5Ue-gS77-znYy-2RYQ-387U-iV54-WAKN-ELcv-a2Gd-brBD-DCnW-532g-aHfZ-FdFs-wM82-Gdf7-n38m-ShnD-RHco-8QXG-Fpvq-uyd5-S | 1111"
+      ]
+    },
+    {
+      "id": "truncated-code",
+      "description": "A compact code that is too short to contain a valid payload.",
+      "expected": "error",
+      "expected_error_contains": "short",
+      "note": "A truncated body that would decode to fewer bytes than the minimum 61-byte payload. The library should reject it as malformed.",
+      "input": [
+        "A-2of3 | ZYjd-A4Qa-VFkT | 1ABC"
+      ]
+    },
+    {
+      "id": "invalid-characters",
+      "description": "A compact code body containing characters outside the base58 alphabet.",
+      "expected": "error",
+      "note": "Base58 excludes 0, O, I, and l. The input contains a '0' character which is not in the alphabet.",
+      "input": [
+        "A-2of3 | 0000-0000-0000-0000 | 1ABC"
+      ]
+    }
+  ]
+}

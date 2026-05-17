@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threshold Vault · Offline Recovery</title>
+<style>
+/* ─── Design tokens ─── */
+:root {
+  --bg:          #0A0E14;
+  --surface:     #11161F;
+  --surface-2:   #161C27;
+  --elevated:    #1B2230;
+  --text:        #EDE6D0;
+  --text-soft:   #C9C0A8;
+  --text-muted:  #8B8478;
+  --gold:        #C9A961;
+  --gold-bright: #D9BB78;
+  --gold-faint:  rgba(201,169,97,0.08);
+  --hairline:    rgba(232,226,208,0.06);
+  --hairline-g:  rgba(201,169,97,0.22);
+  --danger:      #B85C5C;
+  --danger-faint:rgba(184,92,92,0.10);
+  --warn:        #C9873A;
+  --warn-faint:  rgba(201,135,58,0.10);
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    "SF Mono", "Consolas", "Menlo", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text-soft);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── Layout ─── */
+.app { max-width: 680px; margin: 0 auto; padding: 40px 24px 80px; }
+.wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 0.01em;
+  margin-bottom: 40px;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.15;
+}
+.page-title em { font-style: italic; color: var(--gold); }
+.page-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* ─── Warning banner ─── */
+.warning-box {
+  background: var(--warn-faint);
+  border: 1px solid rgba(201,135,58,0.35);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--warn);
+  line-height: 1.6;
+}
+.warning-box strong { color: #d9973a; }
+.warning-box ul { margin: 6px 0 0 16px; }
+.warning-box li { margin-bottom: 2px; }
+
+/* ─── Slots ─── */
+.slots { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.slot-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-top: 11px;
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.slot-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--hairline-g);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 44px;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+.slot-input:focus { border-color: var(--gold); }
+.slot-input.is-valid   { border-color: rgba(100,200,130,0.5); }
+.slot-input.is-invalid { border-color: rgba(184,92,92,0.5); }
+.slot-remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 16px; padding: 10px 4px;
+  line-height: 1; flex-shrink: 0;
+}
+.slot-remove:hover { color: var(--danger); }
+
+/* ─── Status badges ─── */
+.status-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 0 4px 36px;
+  min-height: 18px;
+  display: block;
+}
+.status-badge.valid   { color: rgba(100,200,130,0.9); }
+.status-badge.invalid { color: var(--danger); }
+
+/* ─── Buttons ─── */
+.btn-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-add {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-g);
+  color: var(--text-muted);
+}
+.btn-add:hover { color: var(--text); }
+.btn-recover {
+  background: var(--gold);
+  color: #0A0E14;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.btn-recover:disabled { opacity: 0.38; cursor: not-allowed; }
+.btn-recover:not(:disabled):hover { background: var(--gold-bright); }
+.btn-clear {
+  background: none;
+  border: 1px solid rgba(184,92,92,0.3);
+  color: var(--danger);
+}
+.btn-clear:hover { background: var(--danger-faint); }
+
+/* ─── Threshold progress ─── */
+.thresh {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+}
+.thresh-label { font-size: 13px; color: var(--text-muted); flex: 1; }
+.thresh-slots { display: flex; gap: 6px; }
+.thresh-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--hairline-g);
+  border: 1px solid rgba(201,169,97,0.25);
+  transition: background 0.2s;
+}
+.thresh-dot.filled { background: var(--gold); border-color: var(--gold); }
+
+/* ─── Result ─── */
+.result-panel {
+  display: none;
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-g);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.result-panel.visible { display: block; }
+.result-header {
+  background: rgba(201,169,97,0.06);
+  border-bottom: 1px solid var(--hairline-g);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.result-header-icon { font-size: 18px; }
+.result-header-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--gold);
+  font-size: 15px;
+}
+.result-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 10px 20px 0;
+}
+.result-secret {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text);
+  padding: 16px 20px 20px;
+  word-break: break-all;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+.result-warn {
+  font-size: 12px;
+  color: var(--warn);
+  padding: 0 20px 12px;
+  line-height: 1.5;
+}
+.result-actions { padding: 0 20px 20px; display: flex; gap: 10px; }
+.btn-copy {
+  background: var(--elevated);
+  border: 1px solid var(--hairline);
+  color: var(--text-soft);
+  font-size: 13px;
+  padding: 8px 18px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.btn-copy:hover { border-color: var(--gold); color: var(--text); }
+
+/* ─── Error ─── */
+.error-banner {
+  display: none;
+  background: var(--danger-faint);
+  border: 1px solid rgba(184,92,92,0.35);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--danger);
+}
+.error-banner.visible { display: block; }
+
+/* ─── Footer ─── */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.footer a { color: var(--gold); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="wordmark">Threshold Vault</div>
+
+  <h1 class="page-title">Offline <em>recovery.</em></h1>
+  <p class="page-desc">
+    Enter the recovery codes from at least M shard cards. Validation, decoding,
+    and reconstruction happen entirely inside this browser. Nothing is sent over
+    the network — this page operates without an internet connection.
+  </p>
+
+  <div class="warning-box">
+    <strong>Security reminders:</strong>
+    <ul>
+      <li>Never email or message a recovered secret. Use it directly from this screen.</li>
+      <li>Test your recovery workflow with dummy data before using it with a real secret.</li>
+      <li>Use a clean browser profile (no extensions) for high-value recovery.</li>
+      <li>Disconnect from the network when handling real secrets.</li>
+      <li>Verify this file's SHA-256 hash before use: <code>threshold-vault-offline-recover.html.sha256</code></li>
+    </ul>
+  </div>
+
+  <div class="thresh" id="thresh-bar">
+    <span class="thresh-label" id="thresh-label">0 valid codes</span>
+    <div class="thresh-slots" id="thresh-slots"></div>
+  </div>
+
+  <div class="slots" id="slots"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-add" id="btn-add">+ Add shard</button>
+    <button class="btn btn-recover" id="btn-recover" disabled>Reconstruct secret</button>
+    <button class="btn btn-clear" id="btn-clear" style="display:none">Clear all</button>
+  </div>
+
+  <div class="error-banner" id="error-banner"></div>
+
+  <div class="result-panel" id="result-panel">
+    <div class="result-header">
+      <span class="result-header-icon">&#10003;</span>
+      <span class="result-header-text">Recovery complete</span>
+    </div>
+    <div class="result-meta" id="result-meta"></div>
+    <div class="result-secret" id="result-secret"></div>
+    <div class="result-warn">Use this secret immediately. Do not share it over email or messaging apps. Click "Clear all" when done.</div>
+    <div class="result-actions">
+      <button class="btn-copy" id="btn-copy">Copy secret</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>This is the Threshold Vault offline recovery tool. It is identical in
+    behaviour to <a href="https://thresholdvault.com/recover" target="_blank" rel="noopener">thresholdvault.com/recover</a>
+    but operates without a server or network connection.</p>
+    <p style="margin-top:8px;">This tool is part of the Threshold Vault core open-source package.
+    Verify this file's SHA-256 hash against <code>threshold-vault-offline-recover.html.sha256</code>
+    before use.</p>
+    <p style="margin-top:8px;">Common errors: "Check code does not match" means a transcription error;
+    re-check every character (base58 is case-sensitive). "Different groups" means you mixed shards
+    from different ceremonies. "At least N required" means you need more shard codes.</p>
+  </div>
+</div>
+
+<script>
+// ─── Vendored cryptography ─── (identical algorithm to the Threshold Vault web app)
+(function() {
+'use strict';
+
+// Constants
+const VERSION             = 'shards-1';
+const ALPHABET            = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const COMPACT_PAYLOAD_VER = 1;
+const COMPACT_FLAG_GZIP   = 1;
+const AES_KEY_LEN         = 32;
+const AES_GCM_IV_LEN      = 12;
+const AES_GCM_TAG_LEN     = 16;
+
+// hex utilities
+function bytesToHex(a) {
+  return Array.from(a, b => b.toString(16).padStart(2,'0')).join('');
+}
+function hexToBytes(h) {
+  if (h.length % 2) throw new Error('Malformed hex.');
+  const b = new Uint8Array(h.length / 2);
+  for (let i = 0; i < b.length; i++) b[i] = parseInt(h.slice(i*2, i*2+2), 16);
+  return b;
+}
+
+// base64url
+function toB64U(bytes) {
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function fromB64U(s) {
+  if (!/^[A-Za-z0-9\-_]+$/.test(s)) throw new Error('Malformed base64url.');
+  const pad = s.replace(/-/g,'+').replace(/_/g,'/') + '==='.slice((s.length+3)%4||4);
+  const bin = atob(pad);
+  const b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+  return b;
+}
+
+// base58
+function encB58(bytes) {
+  if (!bytes.length) return '';
+  let v = 0n;
+  for (const b of bytes) v = (v << 8n) + BigInt(b);
+  let out = '';
+  while (v > 0n) { out = ALPHABET[Number(v % 58n)] + out; v /= 58n; }
+  for (const b of bytes) { if (b) break; out = ALPHABET[0] + out; }
+  return out || ALPHABET[0];
+}
+function decB58(s) {
+  if (!s) throw new Error('Body is missing.');
+  let v = 0n;
+  for (const c of s) {
+    const d = ALPHABET.indexOf(c);
+    if (d < 0) throw new Error('Invalid character in recovery code.');
+    v = v * 58n + BigInt(d);
+  }
+  const bytes = [];
+  while (v > 0n) { bytes.unshift(Number(v & 0xffn)); v >>= 8n; }
+  for (const c of s) { if (c !== ALPHABET[0]) break; bytes.unshift(0); }
+  return new Uint8Array(bytes);
+}
+
+// SHA-256
+async function sha256(data) {
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', data instanceof Uint8Array ? data.buffer : data));
+}
+
+// fingerprint (deterministic from shard record fields, excluding holderLabel)
+async function fingerprintRecord(r) {
+  const payload = JSON.stringify({
+    version: VERSION, ceremonyId: r.ceremonyId, index: r.index,
+    total: r.total, required: r.required, secretLength: r.secretLength,
+    compression: r.compression, iv: r.iv, ciphertext: r.ciphertext, share: r.share,
+  });
+  const dig = await sha256(new TextEncoder().encode(payload));
+  const hex8 = bytesToHex(dig.slice(0, 8));
+  return [hex8.slice(0,4), hex8.slice(4,8), hex8.slice(8,12), hex8.slice(12,16)].join(':');
+}
+
+// GF(256)
+function gfMul(a, b) {
+  let p = 0, aa = a, bb = b;
+  while (bb) { if (bb & 1) p ^= aa; aa <<= 1; if (aa & 0x100) aa ^= 0x11b; bb >>= 1; }
+  return p;
+}
+function gfPow(b, e) { let r = 1; for (let i = 0; i < e; i++) r = gfMul(r, b); return r; }
+function gfInv(v) { if (!v) throw new Error('GF inv of 0.'); return gfPow(v, 254); }
+
+// Lagrange interpolation in GF(256)
+function recoverKey(shares) {
+  const len = shares[0].bytes.length;
+  const out = new Uint8Array(len);
+  for (let b = 0; b < len; b++) {
+    let val = 0;
+    for (let i = 0; i < shares.length; i++) {
+      let basis = 1;
+      for (let j = 0; j < shares.length; j++) {
+        if (i === j) continue;
+        basis = gfMul(basis, gfMul(shares[j].index, gfInv(shares[j].index ^ shares[i].index)));
+      }
+      val ^= gfMul(shares[i].bytes[b], basis);
+    }
+    out[b] = val;
+  }
+  return out;
+}
+
+// AES-256-GCM decryption
+async function aesGcmDecrypt(ciphertextBytes, keyBytes, ivBytes) {
+  const tag  = ciphertextBytes.slice(-AES_GCM_TAG_LEN);
+  const body = ciphertextBytes.slice(0, -AES_GCM_TAG_LEN);
+  const combined = new Uint8Array(body.length + tag.length);
+  combined.set(body); combined.set(tag, body.length);
+  const key = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['decrypt']);
+  try {
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv: ivBytes, tagLength: 128}, key, combined);
+    return new Uint8Array(plain);
+  } catch {
+    throw new Error('Shard set could not be recovered. Wrong set or insufficient valid shards.');
+  }
+}
+
+// Gzip decompress via DecompressionStream
+async function gunzip(bytes) {
+  const ds = new DecompressionStream('gzip');
+  const writer = ds.writable.getWriter();
+  writer.write(bytes);
+  writer.close();
+  const chunks = [];
+  const reader = ds.readable.getReader();
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const total = chunks.reduce((s,c) => s + c.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.length; }
+  return out;
+}
+
+// Read big-endian uint16
+function readU16(buf, off) { return ((buf[off] << 8) | buf[off+1]) >>> 0; }
+
+// Decode compact payload binary
+function decodePayload(payload) {
+  if (payload.length < 61) throw new Error('Payload too short to be a valid recovery code.');
+  if (payload[0] !== COMPACT_PAYLOAD_VER) throw new Error('Unsupported compact recovery code version.');
+  const flags = payload[1];
+  const ctLen = readU16(payload, 59);
+  if (payload.length !== 61 + ctLen) throw new Error('Recovery code payload length mismatch.');
+  return {
+    version: VERSION,
+    ceremonyId: bytesToHex(payload.slice(7, 15)),
+    index: payload[2], total: payload[3], required: payload[4],
+    secretLength: readU16(payload, 5),
+    compression: (flags & COMPACT_FLAG_GZIP) ? 'gzip' : 'none',
+    iv:         toB64U(payload.slice(15, 27)),
+    share:      toB64U(payload.slice(27, 59)),
+    ciphertext: toB64U(payload.slice(61)),
+  };
+}
+
+// Shard label: 1->A, 2->B, ..., 27->AA
+function shardLabel(i) {
+  let cur = i, tok = '';
+  while (cur > 0) { cur--; tok = String.fromCharCode(65 + cur%26) + tok; cur = Math.floor(cur/26); }
+  return tok;
+}
+
+// Parse one compact recovery code string
+async function parseCode(raw) {
+  const inp = raw.trim().replace(/\r\n?/g, '\n');
+  const m = inp.match(/^([A-Z]+)-([0-9]+)of([0-9]+)([\s\S]*)$/);
+  if (!m) throw new Error('Not a compact recovery code. Expected format: A-2of3 <body> <checkcode>');
+  const [, label, reqS, totS, rest] = m;
+  const bodyRaw = rest.replace(/^[\s|]+/, '').trim();
+  if (!bodyRaw) throw new Error('Recovery code body is missing.');
+  const tokens = bodyRaw.split(/[|\s]+/).flatMap(s => s.split('-')).map(s => s.trim()).filter(Boolean);
+  if (!tokens.length) throw new Error('Recovery code body is empty.');
+  let check, body;
+  if (tokens.length === 1) {
+    const t = tokens[0];
+    if (t.length <= 4) throw new Error('Recovery code is too short.');
+    check = t.slice(-4); body = t.slice(0, -4);
+  } else {
+    check = tokens[tokens.length-1]; body = tokens.slice(0,-1).join('');
+  }
+  if (!check || check.length !== 4) throw new Error('Check code is malformed (expected 4 characters).');
+  body = body.replace(/[\s-]+/g, '');
+  const payload = decB58(body);
+  const dig = await sha256(payload);
+  const expected = encB58(dig.slice(0,2)).padStart(4, ALPHABET[0]);
+  if (check !== expected) throw new Error('Check code does not match. Re-check this recovery code.');
+  const rec = decodePayload(payload);
+  if (`${shardLabel(rec.index)}-${rec.required}of${rec.total}` !== `${label}-${reqS}of${totS}`)
+    throw new Error('Recovery code header does not match the encoded shard payload.');
+  return rec;
+}
+
+// Main recovery function
+async function recoverSecret(inputs) {
+  if (!inputs.length) throw new Error('No recovery codes provided.');
+  const records = await Promise.all(inputs.map((r, i) =>
+    parseCode(r.trim()).catch(e => { throw new Error(`Code ${i+1}: ${e.message}`); })
+  ));
+  // deduplicate by fingerprint
+  const seen = new Map();
+  for (const r of records) {
+    const fp = await fingerprintRecord(r);
+    if (seen.has(fp)) throw new Error('Duplicate shard detected.');
+    seen.set(fp, r);
+  }
+  const shards = [...seen.values()];
+  const first = shards[0];
+  for (const s of shards) {
+    if (s.ceremonyId !== first.ceremonyId || s.total !== first.total ||
+        s.required !== first.required || s.iv !== first.iv ||
+        s.ciphertext !== first.ciphertext || s.secretLength !== first.secretLength ||
+        s.compression !== first.compression)
+      throw new Error('These shards belong to different ceremonies. Ensure all shard codes are from the same original split.');
+  }
+  if (shards.length < first.required)
+    throw new Error(`At least ${first.required} valid shards are required to recover this secret. You have provided ${shards.length}.`);
+  const key = recoverKey(shards.map(s => ({ index: s.index, bytes: fromB64U(s.share) })));
+  const decrypted = await aesGcmDecrypt(fromB64U(first.ciphertext), key, fromB64U(first.iv));
+  const plain = first.compression === 'gzip' ? await gunzip(decrypted) : decrypted;
+  const secret = new TextDecoder().decode(plain);
+  if (secret.length !== first.secretLength) throw new Error('Secret length mismatch after decryption.');
+  return { secret, ceremonyId: first.ceremonyId, required: first.required, total: first.total };
+}
+
+// Validate one code without recovering (for live feedback)
+async function validateCode(raw) {
+  if (!raw.trim()) return { status: 'empty' };
+  try {
+    const rec = await parseCode(raw.trim());
+    const fp = await fingerprintRecord(rec);
+    return { status: 'valid', rec, fingerprint: fp };
+  } catch (e) {
+    return { status: 'invalid', message: e.message };
+  }
+}
+
+// ─── UI state ───
+let slots = [{ id: 0, value: '' }];
+let nextId = 1;
+let validations = [];
+let result = null;
+
+function getInputEls() {
+  return Array.from(document.querySelectorAll('.slot-input'));
+}
+
+function renderSlots() {
+  const container = document.getElementById('slots');
+  // Preserve existing textarea values
+  const existingValues = {};
+  document.querySelectorAll('.slot-input').forEach(el => {
+    existingValues[el.dataset.slotId] = el.value;
+  });
+  container.innerHTML = slots.map((s, idx) => `
+    <div class="slot" data-slot-id="${s.id}">
+      <span class="slot-label">${idx + 1}</span>
+      <textarea class="slot-input ${getStatusClass(idx)}"
+                data-slot-id="${s.id}"
+                rows="1"
+                placeholder="A-3of5 aBcD-EfGh-... aB3z"
+                spellcheck="false"
+                autocomplete="off">${escHtml(existingValues[s.id] ?? s.value)}</textarea>
+      ${slots.length > 1 ? `<button class="slot-remove" data-remove-id="${s.id}" title="Remove" aria-label="Remove">&times;</button>` : ''}
+    </div>
+    <span class="status-badge ${getStatusClass(idx)}" id="badge-${s.id}">${getStatusText(idx)}</span>
+  `).join('');
+  autoResizeAll();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getStatusClass(idx) {
+  const v = validations[idx];
+  if (!v || v.status === 'empty') return '';
+  return v.status === 'valid' ? 'valid' : 'invalid';
+}
+
+function getStatusText(idx) {
+  const v = validations[idx];
+  if (!v || v.status === 'empty') return '';
+  if (v.status === 'valid') return `✓ Valid · ${v.rec ? `${v.rec.required} of ${v.rec.total}` : ''} · fp ${v.fingerprint || ''}`;
+  return `✗ ${v.message || 'Invalid'}`;
+}
+
+function autoResizeAll() {
+  document.querySelectorAll('.slot-input').forEach(el => {
+    el.style.height = 'auto';
+    el.style.height = Math.max(44, el.scrollHeight) + 'px';
+  });
+}
+
+function updateThreshBar() {
+  const valid = validations.filter(v => v && v.status === 'valid');
+  const first = valid[0];
+  const required = first?.rec?.required ?? 0;
+  const total = first?.rec?.total ?? 0;
+  const count = valid.length;
+
+  const label = document.getElementById('thresh-label');
+  const slotsEl = document.getElementById('thresh-slots');
+
+  label.textContent = count === 0
+    ? 'No valid codes yet'
+    : count < required
+      ? `${count} of ${required} required`
+      : `${count} valid — ready to reconstruct`;
+
+  if (required > 0) {
+    slotsEl.innerHTML = Array.from({length: required}, (_, i) =>
+      `<div class="thresh-dot ${i < count ? 'filled' : ''}"></div>`
+    ).join('');
+  } else {
+    slotsEl.innerHTML = '';
+  }
+
+  const recoverBtn = document.getElementById('btn-recover');
+  recoverBtn.disabled = count < required || required === 0;
+
+  const clearBtn = document.getElementById('btn-clear');
+  clearBtn.style.display = result ? 'inline-block' : 'none';
+}
+
+async function revalidateAll() {
+  const inputs = getInputEls();
+  validations = await Promise.all(
+    inputs.map(el => validateCode(el.value))
+  );
+  renderSlots();
+  updateThreshBar();
+}
+
+// ─── Event handling ───
+document.addEventListener('DOMContentLoaded', () => {
+  renderSlots();
+  updateThreshBar();
+
+  // Input changes
+  document.getElementById('slots').addEventListener('input', async (e) => {
+    const inp = e.target.closest('.slot-input');
+    if (!inp) return;
+    const id = Number(inp.dataset.slotId);
+    const slot = slots.find(s => s.id === id);
+    if (slot) slot.value = inp.value;
+    autoResizeAll();
+    await revalidateAll();
+  });
+
+  // Remove slot
+  document.getElementById('slots').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.slot-remove');
+    if (!btn) return;
+    const id = Number(btn.dataset.removeId);
+    slots = slots.filter(s => s.id !== id);
+    await revalidateAll();
+  });
+
+  // Add slot
+  document.getElementById('btn-add').addEventListener('click', () => {
+    slots.push({ id: nextId++, value: '' });
+    renderSlots();
+    updateThreshBar();
+    const inputs = document.querySelectorAll('.slot-input');
+    inputs[inputs.length - 1]?.focus();
+  });
+
+  // Reconstruct
+  document.getElementById('btn-recover').addEventListener('click', async () => {
+    const inputs = getInputEls();
+    const codes = inputs.map(el => el.value).filter(v => v.trim());
+    const errEl = document.getElementById('error-banner');
+    errEl.classList.remove('visible');
+    errEl.textContent = '';
+    document.getElementById('result-panel').classList.remove('visible');
+    try {
+      const r = await recoverSecret(codes);
+      result = r;
+      document.getElementById('result-meta').textContent =
+        `Ceremony: ${r.ceremonyId}  ·  Scheme: ${r.required} of ${r.total}`;
+      document.getElementById('result-secret').textContent = r.secret;
+      document.getElementById('result-panel').classList.add('visible');
+      document.getElementById('btn-clear').style.display = 'inline-block';
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.classList.add('visible');
+    }
+  });
+
+  // Copy
+  document.getElementById('btn-copy').addEventListener('click', async () => {
+    if (!result) return;
+    await navigator.clipboard.writeText(result.secret);
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy secret'; }, 2000);
+  });
+
+  // Clear
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    slots = [{ id: 0, value: '' }];
+    nextId = 1;
+    validations = [];
+    result = null;
+    document.getElementById('result-panel').classList.remove('visible');
+    document.getElementById('error-banner').classList.remove('visible');
+    renderSlots();
+    updateThreshBar();
+  });
+});
+
+})(); // end IIFE
+</script>
+</body>
+</html>

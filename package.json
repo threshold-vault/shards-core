@@ -1,0 +1,15 @@
+{
+  "name": "threshold-vault-core",
+  "version": "0.1.0",
+  "description": "Core Shamir Secret Sharing library and offline recovery tool for Threshold Vault",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  },
+  "license": "MIT"
+}
